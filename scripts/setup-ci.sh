@@ -18,9 +18,9 @@ unzip -q "$bundle_dir/cli.zip" -d "$bundle_dir/unpacked"
 node_bin=$(find "$bundle_dir/unpacked" -type f -path '*/bin/node' -print -quit)
 ohpm_bin=$(find "$bundle_dir/unpacked" -type f -path '*/bin/ohpm' -print -quit)
 hvigor_bin=$(find "$bundle_dir/unpacked" -type f -path '*/bin/hvigorw' -print -quit)
-java_bin=$(find "$bundle_dir/unpacked" -type f -path '*/bin/java' -print -quit)
+java_bin="$JAVA_HOME/bin/java"
 sdk_dir=$(find "$bundle_dir/unpacked" -type d -path '*/sdk' -print -quit)
-if [[ -z "$node_bin" || -z "$ohpm_bin" || -z "$hvigor_bin" || -z "$java_bin" || -z "$sdk_dir" ]]; then
+if [[ -z "$node_bin" || -z "$ohpm_bin" || -z "$hvigor_bin" || ! -x "$java_bin" || -z "$sdk_dir" ]]; then
   echo 'The archive layout differs or lacks bundled tools. Review the matching official CLI instructions before continuing.'
   exit 1
 fi
