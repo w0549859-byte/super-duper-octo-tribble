@@ -11,12 +11,12 @@ struct Edit {
   @State error: string = '';
   @State available: boolean = true;
   @State saving: boolean = false;
-  private id: string = '';
+  private noteId: string = '';
 
   aboutToAppear(): void {
-    this.id = Nav.id();
+    this.noteId = Nav.id();
     try {
-      const note: Note | undefined = NoteStore.get(this.id);
+      const note: Note | undefined = NoteStore.get(this.noteId);
       if (note === undefined) { this.error = '记录不存在，请返回'; this.available = false; return; }
       this.title = note.title;
       this.content = note.content;
@@ -30,7 +30,7 @@ struct Edit {
     if (this.error.length > 0) { return; }
     this.saving = true;
     try {
-      NoteStore.save(this.id, this.title, this.content, this.category);
+      NoteStore.save(this.noteId, this.title, this.content, this.category);
       Nav.back();
     } catch { this.error = '保存失败，请返回后重试'; this.saving = false; }
   }
