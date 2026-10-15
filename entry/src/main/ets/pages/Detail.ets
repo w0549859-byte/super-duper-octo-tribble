@@ -8,13 +8,13 @@ struct Detail {
   @State note: Note = new Note();
   @State found: boolean = false;
   @State error: string = '';
-  private id: string = '';
+  private noteId: string = '';
 
-  aboutToAppear(): void { this.id = Nav.id(); this.refresh(); }
+  aboutToAppear(): void { this.noteId = Nav.id(); this.refresh(); }
   onPageShow(): void { this.refresh(); }
   refresh(): void {
     try {
-      const current: Note | undefined = NoteStore.get(this.id);
+      const current: Note | undefined = NoteStore.get(this.noteId);
       this.found = current !== undefined;
       if (current !== undefined) { this.note = current; }
       this.error = '';
@@ -26,7 +26,7 @@ struct Detail {
       title: '删除备忘录', message: '确定删除这条记录吗？删除后无法恢复。',
       primaryButton: { value: '取消', action: () => {} },
       secondaryButton: { value: '删除', action: () => {
-        try { NoteStore.remove(this.id); Nav.back(); }
+        try { NoteStore.remove(this.noteId); Nav.back(); }
         catch { this.error = '删除失败，请稍后重试'; }
       } }
     });
@@ -52,7 +52,7 @@ struct Detail {
         }.layoutWeight(1).backgroundColor(Color.White).borderRadius(14).width('100%')
         Row({ space: 14 }) {
           Button('编辑').layoutWeight(1).height(46).backgroundColor('#147D73')
-            .onClick(() => Nav.open('pages/Edit', this.id))
+            .onClick(() => Nav.open('pages/Edit', this.noteId))
           Button('删除').layoutWeight(1).height(46).backgroundColor('#F9E6E3').fontColor('#B83A3A')
             .onClick(() => this.confirmDelete())
         }.width('100%')
