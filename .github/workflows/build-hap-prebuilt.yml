@@ -1,0 +1,49 @@
+name: Build SimpleMemo HAP using prebuilt HarmonyOS CLI
+on:
+  push:
+    paths:
+      - '.github/workflows/build-hap-prebuilt.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: ghcr.io/dalongzhuazi/harmonyos-ci:api26r
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Inspect build tools
+        run: |
+          set -euo pipefail
+          echo "DEVECO_SDK_HOME=$DEVECO_SDK_HOME"
+          node --version
+          ohpm --version
+          hvigorw --version
+      - name: Install dependencies
+        run: ohpm install --all
+      - name: Assemble debug HAP (unsigned)
+        run: hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-daemon --stacktrace
+      - name: Collect outputs
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          find entry/build -type f -name '*.hap' -print -exec cp -v {} dist/ \;
+          compgen -G 'dist/*.hap' >/dev/null
+      - name: Upload HAP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleMemo-unsigned-HAP
+          path: dist/*.hap
+          retention-days: 14
+          if-no-files-found: error
