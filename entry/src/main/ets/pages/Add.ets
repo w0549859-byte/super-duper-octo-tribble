@@ -11,7 +11,7 @@ struct Add {
   @State error: string = '';
   @State available: boolean = true;
   @State saving: boolean = false;
-  private id: string = '';
+  private noteId: string = '';
 
   save(): void {
     if (this.saving || !this.available) { return; }
@@ -19,7 +19,7 @@ struct Add {
     if (this.error.length > 0) { return; }
     this.saving = true;
     try {
-      NoteStore.save(this.id, this.title, this.content, this.category);
+      NoteStore.save(this.noteId, this.title, this.content, this.category);
       Nav.back();
     } catch { this.error = '保存失败，请返回后重试'; this.saving = false; }
   }
