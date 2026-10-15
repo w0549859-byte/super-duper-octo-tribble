@@ -1,34 +1,64 @@
 # SimpleMemo · 简记
 
-六个独立页面的本地鸿蒙备忘录：登录、列表、新建、详情、编辑、设置。
+课程备忘录应用，共六个独立页面：登录、列表、新建、详情、编辑、设置。
 
 演示登录：admin / 123456。数据保存在应用私有目录。仅供课程演示。
 
-## 当前交付状态
+## 已完成的构建
 
-- 已根据用户上传的完整 DevEco 工程整理源码与资源。
-- 保留 targetSdkVersion 26.0.0、compatibleSdkVersion 6.1.1(24)、modelVersion 26.0.0。
-- 已移除无对应证书的 default 签名引用，按未签名构建准备。
-- 已排除本机路径、IDE 状态、依赖与构建缓存。
-- 已准备 GitHub Actions 手动构建模板，但未在 Actions 执行验证。
-- 尚未生成 HAP，也未完成鸿蒙编译或真机验证。
+2026-10-15 北京时间 16:43，GitHub Actions 已完成 ArkTS 编译和 HAP 打包。
 
-## 云端构建前置条件
+- 构建提交：`1b04288648f719b7ac5055ce2d37e8ccfbf6875f`
+- [构建记录](https://github.com/w0549859-byte/super-duper-octo-tribble/actions/runs/38707404171)
+- 编译日志：`CompileArkTS`、`PackageHap`、`assembleHap` 完成，`BUILD SUCCESSFUL`。
+- 产物：`entry-default-unsigned.hap`，248,880 字节。
+- HAP SHA256：`0757b88e223e41209a77795e30bcae6b14020322840314b7aff842e8494f9c98`
+- 已检查压缩包完整性、编译后的 `ets/modules.abc` 及六个页面注册信息。
+- GitHub 构建产物 ZIP 的 SHA256 与下载文件一致。
 
-1. GitHub 集成需要对该仓库具有实际 Contents 写入权限；提交工作流还需要对应的 Workflows 权限。
-2. 从华为官方下载页获取与本项目 26.0.0 配套的 Linux x64 Command Line Tools ZIP 下载地址及 SHA256。
-   https://developer.huawei.com/consumer/cn/download/command-line-tools-for-hmos
-3. 工作流只支持手动触发，以免在工具链未配置时重复运行。输入 cli_url 和 cli_sha256 后执行。
-4. scripts/setup-ci.sh 尝试识别工具包内的 Node、Java、ohpm、hvigorw 与 SDK。
-   如果工具包目录结构不同或不含上述组件，脚本会明确停止，需要根据实际工具包调整。
-5. 成功后从 Actions 下载 SimpleMemo-unsigned-HAP。未签名 HAP 不能直接作为真机可安装包。
+## 页面及交互
 
-## 本地构建
+| 页面 | 已实现的交互 |
+| --- | --- |
+| 登录 Index | 用户名与密码输入、错误提示、登录成功跳转 |
+| 列表 Home | 搜索标题/内容、进入新建页、点选记录进入详情、进入设置 |
+| 新建 Add | 输入标题和内容、选择分类、校验标题、保存并返回列表 |
+| 详情 Detail | 查看记录、进入编辑页、确认后删除、返回 |
+| 编辑 Edit | 回填原记录、修改标题/内容/分类、保存并返回 |
+| 设置 Settings | 使用说明、返回、确认退出后跳转登录页 |
 
-使用匹配 SDK 的 DevEco Studio 打开本目录，完成依赖同步，执行构建 HAP。
-编译不需要启动模拟器或开启 Hyper-V；安装运行另需适当签名和设备。
+记录通过文件写入应用私有目录。写入临时文件并校验后再替换已有数据。
 
-## 检查范围
+以上交互已在源码中核对，且相关页面已通过编译；目前尚未完成设备上的点击、安装和运行验证。
 
-当前完成工程结构、页面注册、相对代码引用与配置静态检查。
-核心逻辑曾通过 Node 环境测试，但不能代替华为 ArkTS 编译器检查。
+## 构建方法
+
+已实际跑通的工作流是 `.github/workflows/build-hap-prebuilt.yml`：
+使用预构建 HarmonyOS CLI 容器，安装依赖并调用 `hvigorw assembleHap`，
+上传 `SimpleMemo-unsigned-HAP`。工作流支持手动触发，并会在相关源码改动后运行。
+
+另一个 `build-hap.yml` 是需要提供官方 CLI 下载地址和校验值的备用工作流，
+不代表它已单独验证。
+
+当前 SDK 配置：
+
+- compileSdkVersion：26.0.0.105（来自已生成 HAP）
+- targetSdkVersion：26.0.0 / API 26
+- compatibleSdkVersion：6.1.1 / API 24
+- runtimeOS：HarmonyOS
+
+也可使用匹配 SDK 的 DevEco Studio 打开本工程、同步依赖并构建 HAP。
+单纯编译不需要启动模拟器或开启 Hyper-V。
+
+## 签名与真机运行：尚未完成
+
+当前产物是**未签名调试包**，不可视为已通过真机安装运行验证。
+
+完成调试签名还需要：
+
+1. 确定目标鸿蒙设备及其系统版本、UDID。
+2. 获取与本项目密钥匹配的华为调试证书（.cer）。
+3. 获取包含本应用包名 `com.wangyanxin.simplememo`、证书和目标设备的调试 Profile（.p7b）。
+4. 签名后通过开发工具安装，并验证登录、新建、搜索、编辑、删除及重启后数据保留。
+
+密钥库、密码、签名 Profile 等私密资料不应放入公开仓库。
