@@ -3,7 +3,14 @@ on:
   push:
     paths:
       - '.github/workflows/build-hap-prebuilt.yml'
+      - 'entry/**'
+      - 'build-profile.json5'
+  
   workflow_dispatch:
+
+concurrency:
+  group: simplememo-hap-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
