@@ -5,6 +5,7 @@
     "pages/Add",
     "pages/Detail",
     "pages/Edit",
-    "pages/Settings"
+    "pages/Settings",
+    "pages/PreviewDemo"
   ]
 }
